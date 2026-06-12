@@ -99,6 +99,18 @@ flood-economic-impact-eastern-india/
 
 ---
 
+## Limitations
+
+- **Outcome proxy:** Night-lights measure commercial and industrial activity but miss subsistence agriculture, which is the dominant livelihood in flood-prone Bihar and Odisha constituencies.
+- **Flood measure:** `Seasonal_Ratio` captures inundation extent from satellite imagery but not flood depth, duration, or damage severity. Two constituencies with the same ratio may experience very different economic disruption.
+- **Parallel trends:** The TWFE estimator requires that treated and control ACs would have followed parallel outcome trends in the absence of flooding. This assumption is untestable and may be violated if flood-prone ACs are structurally different in ways that interact with the outcome trend.
+- **Missing regressor:** Road density is not yet included in the model. If road access correlates with both flood exposure and economic recovery capacity, current estimates may carry omitted variable bias.
+- **Estimation window:** 2014 is excluded from estimation for lag construction; results cover 2015–2019 only.
+- **Pooled null:** The pooled null result is not evidence of no effect. It reflects cancellation across states with heterogeneous and opposite-sign effects, not a true zero treatment effect.
+- **Spatial resolution mismatch:** VIIRS nighttime lights at ~500 m are considerably coarser than the 30 m Landsat and JRC GSW layers. Aggregation to AC-level averages partially mitigates this but introduces measurement error in the outcome variable.
+
+---
+
 ## How to Run
 
 ```bash
