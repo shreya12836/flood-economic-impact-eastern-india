@@ -1,0 +1,9 @@
+pandas>=1.5
+numpy>=1.23
+statsmodels>=0.13
+linearmodels>=4.27
+pyfixest>=0.13
+matplotlib>=3.6
+seaborn>=0.12
+openpyxl>=3.0
+python-docx>=0.8

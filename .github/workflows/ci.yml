@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Syntax check — regression scripts
+        run: |
+          python -m py_compile src/regression/run_nl_ols_pooled.py
+          python -m py_compile src/regression/run_nl_ols_by_state.py
+          python -m py_compile src/regression/run_ndbi_pooled.py
+          python -m py_compile src/regression/run_ndbi_by_state.py
+          python -m py_compile src/regression/run_ndbi_ols_pooled.py
+          python -m py_compile src/regression/run_ndbi_ols_by_state.py
+
+      - name: Syntax check — visualization scripts
+        run: |
+          python -m py_compile src/visualization/generate_ols_plots.py
+          python -m py_compile src/visualization/plot_coefficients.py
+          python -m py_compile src/visualization/plot_state_trends.py
+
+      - name: Syntax check — table builders
+        run: |
+          python -m py_compile scripts/build_paper_table.py
+          python -m py_compile scripts/build_paper_table_ndbi.py
+          python -m py_compile scripts/build_paper_table_ndbi_ols.py
+          python -m py_compile scripts/build_paper_table_nl_ols.py
