@@ -55,11 +55,17 @@ NDBI is used in levels (not log) because it is bounded in [−1, 1] and frequent
 **West Bengal — Night-lights**
 Higher flood exposure (Seasonal_Ratio) is associated with a statistically significant reduction in night-lights growth. The coefficient on Seasonal_Ratio ranges from −0.32 to −0.39 (p < 0.05) depending on the NL measure (mean vs. median). This implies that a one-unit increase in the seasonal flood water fraction is associated with a 32–39 percent reduction in economic activity growth.
 
+![NL TWFE coefficients by state](outputs/figures/coef_NL_TWFE.png)
+
 **Bihar — NDBI**
 Flood exposure predicts a significant decline in built-up index growth in Bihar. The coefficient on Seasonal_Ratio is −0.02 to −0.03 (p < 0.01), suggesting flood-affected constituencies see slower infrastructure accumulation.
 
+![NDBI TWFE coefficients by state](outputs/figures/coef_NDBI_TWFE.png)
+
 **Pooled sample**
 No statistically significant effect is detected in pooled regressions. The aggregate null masks heterogeneous state-level effects, consistent with variation in flood frequency, infrastructure quality, and institutional capacity across states.
+
+![State-level coefficient comparison (OLS)](outputs/figures/forest_plot_flood_OLS.png)
 
 ---
 
