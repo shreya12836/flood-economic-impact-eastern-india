@@ -4,11 +4,13 @@ Same specification as run_ndbi_pooled.py, run separately on each of the 4 states
 Outputs Median_All_States and Mean_All_States summary sheets (one row per variable,
 columns per state with Coef/SE/Sig), plus per-state coefficient sheets and a stats sheet.
 """
+from pathlib import Path
 import pandas as pd
 from linearmodels.panel import PanelOLS
 
-DATA = r"c:\Users\BIT\Downloads\Processed_Flood_Files\final_regression_dataset.xlsx"
-OUT = r"c:\Users\BIT\Downloads\Processed_Flood_Files\Regression_Results_NDBI_By_State.xlsx"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DATA = REPO_ROOT / "data" / "processed" / "final_regression_dataset.xlsx"
+OUT = REPO_ROOT / "outputs" / "tables" / "Regression_Results_NDBI_By_State.xlsx"
 
 STATES = {
     "BIHAR": "Bihar",

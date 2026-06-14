@@ -18,6 +18,7 @@ Outputs (saved to figures/):
 import os
 import sys
 import warnings
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -28,8 +29,10 @@ import seaborn as sns
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
 
-ROOT = r'C:\Users\BIT\Downloads\Processed_Flood_Files'
-FIG_DIR = os.path.join(ROOT, 'figures')
+REPO_ROOT = Path(__file__).resolve().parents[2]
+ROOT = REPO_ROOT / "outputs" / "tables"
+DATA = REPO_ROOT / "data" / "processed" / "final_regression_dataset.xlsx"
+FIG_DIR = REPO_ROOT / "outputs" / "figures"
 os.makedirs(FIG_DIR, exist_ok=True)
 
 STATES = ['Pooled', 'Bihar', 'Jharkhand', 'Odisha', 'West Bengal']
@@ -288,7 +291,7 @@ def plot_heatmap(res):
 # PLOT 4 — Year fixed effects (re-estimated)
 # ============================================================
 def plot_year_fe():
-    df = pd.read_excel(os.path.join(ROOT, 'final_regression_dataset.xlsx'), sheet_name='Panel')
+    df = pd.read_excel(DATA, sheet_name='Panel')
     # Compute outcomes
     df = df[df['YEAR'] >= 2015].copy()  # drop 2014 (no lag)
     df = df[df['NL_mean'] > 0]

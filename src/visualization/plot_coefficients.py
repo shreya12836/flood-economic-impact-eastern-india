@@ -10,11 +10,13 @@ Each figure: 5 rows (Bihar, Jharkhand, Odisha, West Bengal, All states pooled),
 Median and Mean model shown as two markers with 95% CIs (beta +/- 1.96*SE).
 """
 import os
+from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 
-BASE = r"c:\Users\BIT\Downloads\Processed_Flood_Files"
-OUTDIR = os.path.join(BASE, "figures")
+REPO_ROOT = Path(__file__).resolve().parents[2]
+BASE = REPO_ROOT / "outputs" / "tables"
+OUTDIR = REPO_ROOT / "outputs" / "figures"
 os.makedirs(OUTDIR, exist_ok=True)
 
 CONFIG = [

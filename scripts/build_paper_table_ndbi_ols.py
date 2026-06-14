@@ -1,12 +1,14 @@
 """Publication-style regression table from NDBI OLS results (district-clustered)."""
+from pathlib import Path
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
-POOLED = r"c:\Users\BIT\Downloads\Processed_Flood_Files\Regression_Results_NDBI_OLS_Pooled.xlsx"
-BYSTATE = r"c:\Users\BIT\Downloads\Processed_Flood_Files\Regression_Results_NDBI_OLS_By_State.xlsx"
-OUT = r"c:\Users\BIT\Downloads\Processed_Flood_Files\Regression_Table_NDBI_OLS_Paper.xlsx"
+REPO_ROOT = Path(__file__).resolve().parents[1]
+POOLED = REPO_ROOT / "outputs" / "tables" / "Regression_Results_NDBI_OLS_Pooled.xlsx"
+BYSTATE = REPO_ROOT / "outputs" / "tables" / "Regression_Results_NDBI_OLS_By_State.xlsx"
+OUT = REPO_ROOT / "outputs" / "tables" / "Regression_Table_NDBI_OLS_Paper.xlsx"
 
 SIG_TO_STARS = {"p < 0.01": "***", "p < 0.05": "**", "p < 0.10": "*", "n.s.": ""}
 

@@ -6,11 +6,13 @@ For each variable, two panels:
 For Seasonal_Ratio (single column): mean across ACs / median across ACs.
 """
 import os
+from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 
-DATA = r"c:\Users\BIT\Downloads\Processed_Flood_Files\final_regression_dataset.xlsx"
-OUTDIR = r"c:\Users\BIT\Downloads\Processed_Flood_Files\figures"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DATA = REPO_ROOT / "data" / "processed" / "final_regression_dataset.xlsx"
+OUTDIR = REPO_ROOT / "outputs" / "figures"
 os.makedirs(OUTDIR, exist_ok=True)
 
 STATE_ORDER = ["Bihar", "Jharkhand", "Odisha", "WB"]

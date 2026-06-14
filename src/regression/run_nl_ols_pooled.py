@@ -9,12 +9,14 @@ Specification:
 
 Estimator: pyfixest.feols (formula API; FE absorbed, no intercept reported).
 """
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from pyfixest.estimation import feols
 
-DATA = r"c:\Users\BIT\Downloads\Processed_Flood_Files\final_regression_dataset.xlsx"
-OUT = r"c:\Users\BIT\Downloads\Processed_Flood_Files\Regression_Results_NL_OLS_Pooled.xlsx"
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DATA = REPO_ROOT / "data" / "processed" / "final_regression_dataset.xlsx"
+OUT = REPO_ROOT / "outputs" / "tables" / "Regression_Results_NL_OLS_Pooled.xlsx"
 
 
 def stars(p):
