@@ -8,15 +8,17 @@ DATA = REPO_ROOT / "data" / "processed" / "final_regression_dataset.xlsx"
 TABLES = REPO_ROOT / "outputs" / "tables"
 
 _POOLED_FILES = {
-    ("NL", "TWFE"): "Regression_Results_NL_OLS_Pooled.xlsx",
+    ("NL",   "OLS"):  "Regression_Results_NL_OLS_Pooled.xlsx",
+    ("NDBI", "OLS"):  "Regression_Results_NDBI_OLS_Pooled.xlsx",
+    ("NL",   "TWFE"): "Regression_Results_Pooled_DistrictCluster.xlsx",
     ("NDBI", "TWFE"): "Regression_Results_NDBI_Pooled_DistrictCluster.xlsx",
-    ("NDBI", "TWFE-LDV"): "Regression_Results_NDBI_OLS_Pooled.xlsx",
 }
 
 _BYSTATE_FILES = {
-    ("NL", "TWFE"): "Regression_Results_NL_OLS_By_State.xlsx",
+    ("NL",   "OLS"):  "Regression_Results_NL_OLS_By_State.xlsx",
+    ("NDBI", "OLS"):  "Regression_Results_NDBI_OLS_By_State.xlsx",
+    ("NL",   "TWFE"): "Regression_Results_By_State.xlsx",
     ("NDBI", "TWFE"): "Regression_Results_NDBI_By_State.xlsx",
-    ("NDBI", "TWFE-LDV"): "Regression_Results_NDBI_OLS_By_State.xlsx",
 }
 
 _STATES = [

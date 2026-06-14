@@ -8,9 +8,10 @@ st.set_page_config(page_title="Regression Results", layout="wide")
 st.header("Regression Results — Flood Exposure Coefficient")
 
 _SPEC_OPTIONS = {
-    "NL (night lights) — TWFE": ("NL", "TWFE"),
-    "NDBI (built-up index) — TWFE": ("NDBI", "TWFE"),
-    "NDBI (built-up index) — TWFE-LDV": ("NDBI", "TWFE-LDV"),
+    "NL (night lights) — OLS, pyfixest [primary]":              ("NL",   "OLS"),
+    "NDBI (built-up index) — OLS, pyfixest, LDV [primary]":    ("NDBI", "OLS"),
+    "NL (night lights) — TWFE, linearmodels [cross-check]":     ("NL",   "TWFE"),
+    "NDBI (built-up index) — TWFE, linearmodels [cross-check]": ("NDBI", "TWFE"),
 }
 
 _SIG_STARS = {
@@ -62,27 +63,37 @@ for r in rows:
 st.dataframe(pd.DataFrame(tbl_rows), use_container_width=True, hide_index=True)
 
 with st.expander("Specification notes"):
-    if outcome == "NL":
+    if outcome == "NL" and estimator == "OLS":
         st.markdown(
             """
             **Dependent variable:** Δlog(NL) — year-on-year growth in night-light radiance.
-            **Estimator:** TWFE via pyfixest (AC + year fixed effects).
+            **Estimator:** pyfixest.feols — AC + year fixed effects (primary estimator per dissertation).
             **Standard errors:** Clustered by district (108 clusters pooled; 19–37 by state).
             """
         )
-    elif estimator == "TWFE":
+    elif outcome == "NDBI" and estimator == "OLS":
         st.markdown(
             """
-            **Dependent variable:** ΔNDBI = NDBI_t − NDBI_{t−1} (level change in built-up index).
-            **Estimator:** PanelOLS (linearmodels), two-way FE.
+            **Dependent variable:** NDBI_t (level), with lagged NDBI on RHS (LDV specification).
+            **Estimator:** pyfixest.feols — AC + year fixed effects (primary estimator per dissertation).
+            **Nickell bias caveat:** With T ≈ 5, the lagged-DV coefficient has ~20% downward bias.
+            The flood coefficient (β₁) is far less affected.
+            **Standard errors:** Clustered by district (108 clusters pooled; 19–37 by state).
+            """
+        )
+    elif outcome == "NL" and estimator == "TWFE":
+        st.markdown(
+            """
+            **Dependent variable:** Δlog(NL) — year-on-year growth in night-light radiance.
+            **Estimator:** linearmodels PanelOLS — two-way FE (cross-check of pyfixest primary).
             **Standard errors:** Clustered by district.
             """
         )
     else:
         st.markdown(
             """
-            **Dependent variable:** NDBI_t (levels, with lagged DV on RHS — TWFE-LDV).
-            **Estimator:** pyfixest.feols with lagged NDBI as control.
+            **Dependent variable:** NDBI_t (level), with lagged NDBI on RHS (LDV specification).
+            **Estimator:** linearmodels PanelOLS — two-way FE (cross-check of pyfixest primary).
             **Nickell bias caveat:** With T ≈ 5, the lagged-DV coefficient has ~20% downward bias.
             The flood coefficient (β₁) is far less affected.
             **Standard errors:** Clustered by district.

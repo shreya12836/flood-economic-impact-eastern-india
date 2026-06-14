@@ -1,10 +1,15 @@
-"""Pooled district-clustered TWFE regression with Delta NDBI as the outcome.
+"""Pooled district-clustered TWFE regression with NDBI_t (level) as the outcome (linearmodels cross-check).
 
-Specification (per dissertation):
-    NDBI_it - NDBI_{i,t-1} = b0 + b1*Seasonal_Ratio_it
-                            + b2*NDVI_{i,t-1}
-                            + b3*NL_{i,t-1}
-                            + alpha_i + gamma_t + e_it
+Replicates run_ndbi_ols_pooled.py (pyfixest primary) using linearmodels PanelOLS.
+Specification (per dissertation Eq 2):
+    NDBI_it = b0 + b1*Seasonal_Ratio_it
+            + b2*NDVI_{i,t-1}
+            + b3*NL_{i,t-1}
+            + b4*NDBI_{i,t-1}   <- lagged dependent variable
+            + alpha_i + gamma_t + e_it
+
+Note: lagged DV (NDBI_{t-1}) with entity FE introduces Nickell bias ~1/T ≈ 20% on b4.
+The flood coefficient (b1) is far less affected.
 
 Two variants: Median (uses *_median series) and Mean (uses *_mean series).
 SEs clustered at district (state+district code uniquely identifies district).
@@ -30,19 +35,20 @@ def stars(p):
 
 
 def run_one(df, suffix):
-    y = df[f"NDBI_{suffix}"] - df[f"NDBI_{suffix}_t_minus_1"]
+    y = df[f"NDBI_{suffix}"]
     X = pd.DataFrame({
         "Seasonal_Ratio": df["Seasonal_Ratio"],
         f"NDVI_{suffix}_t_minus_1": df[f"NDVI_{suffix}_t_minus_1"],
         f"NL_{suffix}_t_minus_1": df[f"NL_{suffix}_t_minus_1"],
+        f"NDBI_{suffix}_t_minus_1": df[f"NDBI_{suffix}_t_minus_1"],
     }, index=df.index)
     X["const"] = 1.0
 
-    panel = pd.concat([y.rename("delta_ndbi"), X, df[["AC_UID", "YEAR", "DISTRICT_ID"]]], axis=1).dropna()
+    panel = pd.concat([y.rename("ndbi_level"), X, df[["AC_UID", "YEAR", "DISTRICT_ID"]]], axis=1).dropna()
     panel = panel.set_index(["AC_UID", "YEAR"])
 
-    dep = panel["delta_ndbi"]
-    regs = panel[["const", "Seasonal_Ratio", f"NDVI_{suffix}_t_minus_1", f"NL_{suffix}_t_minus_1"]]
+    dep = panel["ndbi_level"]
+    regs = panel[["const", "Seasonal_Ratio", f"NDVI_{suffix}_t_minus_1", f"NL_{suffix}_t_minus_1", f"NDBI_{suffix}_t_minus_1"]]
     clusters = panel["DISTRICT_ID"]
 
     mod = PanelOLS(dep, regs, entity_effects=True, time_effects=True, drop_absorbed=True)
@@ -54,6 +60,7 @@ def run_one(df, suffix):
         "Seasonal_Ratio": "Seasonal_Ratio",
         f"NDVI_{suffix}_t_minus_1": f"NDVI_{suffix}_t_minus_1",
         f"NL_{suffix}_t_minus_1": f"NL_{suffix}_t_minus_1",
+        f"NDBI_{suffix}_t_minus_1": f"NDBI_{suffix}_t_minus_1",
     }
     for v in regs.columns:
         b = res.params[v]
@@ -73,11 +80,11 @@ def run_one(df, suffix):
             "Significance": stars(p),
         })
 
-    n_districts = panel.reset_index()["DISTRICT_ID"].nunique() if "DISTRICT_ID" in panel.reset_index().columns else clusters.nunique()
+    n_districts = clusters.nunique()
     stats_rows = [
         ("Model", "Median" if suffix == "median" else "Mean"),
-        ("Equation", f"NDBI_{suffix}_t - NDBI_{suffix}_(t-1) = b0 + b1*Seasonal_Ratio + b2*NDVI_{suffix}_(t-1) + b3*NL_{suffix}_(t-1) + a_i + g_t + e_it"),
-        ("Estimator", "Two-way FE (PanelOLS) with explicit constant"),
+        ("Equation", f"NDBI_{suffix}_it = b0 + b1*Seasonal_Ratio + b2*NDVI_{suffix}_(t-1) + b3*NL_{suffix}_(t-1) + b4*NDBI_{suffix}_(t-1) + a_i + g_t + e_it"),
+        ("Estimator", "Two-way FE (linearmodels PanelOLS) — cross-check of pyfixest primary (LDV spec)"),
         ("Entity FE", "AC (AC_UID) = alpha_i"),
         ("Time FE", "YEAR = gamma_t"),
         ("Std errors", f"Clustered by DISTRICT (n={n_districts} districts)"),
@@ -102,11 +109,12 @@ def main():
 
     notes = pd.DataFrame({
         "Note": [
-            "Outcome: Delta NDBI = NDBI_t - NDBI_{t-1} (level change; NDBI is bounded in [-1,1]).",
-            "Lagged regressors: NDVI_{t-1}, NL_{t-1}. Flood (Seasonal_Ratio) is contemporaneous.",
-            "Two-way fixed effects: AC (entity) + YEAR (time). Constant absorbed by FE; reported beta_0 is the implied intercept.",
+            "Outcome: NDBI_t (level; NDBI is bounded in [-1,1]).",
+            "Regressors: Seasonal_Ratio (contemp.), NDVI_{t-1}, NL_{t-1}, NDBI_{t-1} (lagged DV).",
+            "Two-way FE: AC (entity) + YEAR (time). Constant is explicit; FE absorbed by PanelOLS.",
             "SEs clustered by district (ST_CODE_DT_CODE). Significance: *** p<0.01, ** p<0.05, * p<0.10.",
-            "Sample: 2016-2019 (need t-1 covariates).",
+            "Nickell bias: lagged NDBI_{t-1} with entity FE biases its coefficient ~1/T ≈ 20%; flood coef far less affected.",
+            "Cross-check: same specification as run_ndbi_ols_pooled.py (pyfixest); coefficients should be close.",
         ]
     })
     comparison = pd.DataFrame({
