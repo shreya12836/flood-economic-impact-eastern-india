@@ -6,6 +6,7 @@ _STATE_COLORS = {
     "Jharkhand": "#EF553B",
     "Odisha": "#00CC96",
     "WB": "#AB63FA",
+    "West Bengal": "#AB63FA",
 }
 
 _SIG_LABELS = {

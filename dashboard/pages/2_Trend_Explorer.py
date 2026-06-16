@@ -10,13 +10,13 @@ df = load_panel()
 all_states = sorted(df["STATE"].unique().tolist())
 
 _VARIABLE_MAP = {
-    "Night lights — NL (median)": "NL_median",
-    "Night lights — NL (mean)": "NL_mean",
-    "Built-up index — NDBI (median)": "NDBI_median",
-    "Built-up index — NDBI (mean)": "NDBI_mean",
-    "Vegetation — NDVI (median)": "NDVI_median",
-    "Vegetation — NDVI (mean)": "NDVI_mean",
-    "Flood coverage — Seasonal Ratio": "Seasonal_Ratio",
+    "Night lights - NL (median)": "NL_median",
+    "Night lights - NL (mean)": "NL_mean",
+    "Built-up index - NDBI (median)": "NDBI_median",
+    "Built-up index - NDBI (mean)": "NDBI_mean",
+    "Vegetation - NDVI (median)": "NDVI_median",
+    "Vegetation - NDVI (mean)": "NDVI_mean",
+    "Flood coverage - Seasonal Ratio": "Seasonal_Ratio",
 }
 
 with st.sidebar:
