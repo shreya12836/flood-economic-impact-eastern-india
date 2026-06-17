@@ -2,23 +2,28 @@ from __future__ import annotations
 
 import datetime
 
-import plotly.graph_objects as go
 import streamlit as st
 
 from config import (
     DATA_SOURCES,
     DEBUG_MODE,
+    FINDING_FALLBACK_ICON,
     FINDINGS_SPECS,
+    GEO_LAYERS,
+    HERO_DYNAMIC_TAG_ICONS,
+    HERO_TAGS,
     KEY_FINDINGS,
+    KPI_ICONS,
+    META_ICONS,
     METHODS_EXTRA,
     POOLED_NOTE,
     PROJECT_DESCRIPTION,
-    PROJECT_SUBTITLE,
     PROJECT_TITLE,
-    STATE_CENTROIDS,
+    STATE_GEO_NAME_FIELD,
+    STATE_NAME_MAP,
     TOOLS,
 )
-from utils.charts import _STATE_COLORS
+from utils.charts import _STATE_COLORS, state_boundary_map
 from utils.data_loader import (
     DATA,
     STARS,
@@ -31,9 +36,21 @@ from utils.data_loader import (
     load_robustness_summary,
     load_spec_meta,
     load_state_finding,
+    load_state_geojson,
+)
+from utils.theme import (
+    accent_header,
+    chip_row,
+    finding_card,
+    finding_missing_card,
+    inject_bootstrap_icons,
+    kpi_card,
+    meta_card,
+    pooled_note_card,
 )
 
 st.set_page_config(page_title="Overview", layout="wide")
+inject_bootstrap_icons()
 
 # ── Data ──────────────────────────────────────────────────────────────────────
 df = load_panel()
@@ -47,61 +64,47 @@ panel_states = sorted(df["STATE"].unique())
 load_ts      = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # ── Hero ──────────────────────────────────────────────────────────────────────
-st.title(PROJECT_TITLE)
-st.caption(f"{PROJECT_SUBTITLE} · {n_states} States · {year_range}")
+st.markdown(f"# {PROJECT_TITLE} ({year_range})")
+_tags = [(t["icon"], t["label"]) for t in HERO_TAGS] + [
+    (HERO_DYNAMIC_TAG_ICONS["constituencies"], f"{n_acs:,} Constituencies"),
+    (HERO_DYNAMIC_TAG_ICONS["year_range"],     year_range),
+]
+st.markdown(chip_row(_tags), unsafe_allow_html=True)
 st.markdown(PROJECT_DESCRIPTION)
 st.divider()
 
 # ── KPI row ───────────────────────────────────────────────────────────────────
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("Assembly Constituencies", n_acs)
-c2.metric("States", n_states)
-c3.metric("Years Covered", year_range)
-c4.metric("Constituency-Year Observations", n_obs)
+_kpi = [
+    (KPI_ICONS[0], n_acs,      "Assembly Constituencies"),
+    (KPI_ICONS[1], n_states,   "States"),
+    (KPI_ICONS[2], year_range, "Years Covered"),
+    (KPI_ICONS[3], n_obs,      "Constituency-Year Observations"),
+]
+for _col, (_icon, _value, _label) in zip(st.columns(4), _kpi):
+    _col.markdown(kpi_card(_icon, _value, _label), unsafe_allow_html=True)
 st.divider()
 
 # ── Study Area map (left) + Key Findings (right) ──────────────────────────────
-_INDIA_FALLBACK = (82.0, 22.0)
-
 map_col, find_col = st.columns([3, 2])
 
 with map_col:
-    st.subheader("Study Area")
-    lons   = [STATE_CENTROIDS.get(s, _INDIA_FALLBACK)[0] for s in panel_states]
-    lats   = [STATE_CENTROIDS.get(s, _INDIA_FALLBACK)[1] for s in panel_states]
-    colors = [_STATE_COLORS.get(s, "#888888") for s in panel_states]
-
-    fig = go.Figure(
-        go.Scattergeo(
-            lon=lons,
-            lat=lats,
-            text=panel_states,
-            mode="markers+text",
-            marker=dict(size=22, color=colors, opacity=0.85),
-            textposition="bottom center",
-            textfont=dict(color="white", size=11),
+    st.markdown(accent_header("Study Area"), unsafe_allow_html=True)
+    try:
+        geojson   = load_state_geojson("state")
+        ac_counts = df.groupby("STATE")["AC_UID"].nunique().to_dict()
+        fig = state_boundary_map(
+            geojson=geojson,
+            state_colors=_STATE_COLORS,
+            state_name_field=STATE_GEO_NAME_FIELD,
+            state_name_map=STATE_NAME_MAP,
+            ac_counts=ac_counts,
         )
-    )
-    fig.update_geos(
-        scope="asia",
-        showland=True,       landcolor="#1e2130",
-        showocean=True,      oceancolor="#0e1117",
-        showcountries=True,  countrycolor="#555555",
-        showsubunits=True,   subunitcolor="#333333",
-        center=dict(lon=85, lat=23),
-        projection_scale=7,
-        bgcolor="#0e1117",
-    )
-    fig.update_layout(
-        height=320,
-        margin=dict(l=0, r=0, t=0, b=0),
-        paper_bgcolor="#0e1117",
-        geo_bgcolor="#0e1117",
-    )
-    st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True)
+    except FileNotFoundError as exc:
+        st.warning(str(exc))
 
 with find_col:
-    st.subheader("Key Findings")
+    st.markdown(accent_header("Key Findings"), unsafe_allow_html=True)
 
     any_loaded = False
     for finding in KEY_FINDINGS:
@@ -113,7 +116,7 @@ with find_col:
         )
 
         if result is None:
-            st.caption(f"_{finding['label']}: data not found — run pipeline first._")
+            st.markdown(finding_missing_card(finding["label"]), unsafe_allow_html=True)
             continue
 
         any_loaded = True
@@ -127,23 +130,26 @@ with find_col:
                 lo_coef, hi_coef = median_r["coef"], mean_r["coef"]
             else:
                 lo_coef, hi_coef = mean_r["coef"], median_r["coef"]
-            stars    = median_r["stars"]
             sig      = median_r["sig"]
-            coef_str = f"β = {lo_coef:.2f} to {hi_coef:.2f}{stars}"
+            coef_str = f"beta = {lo_coef:.2f} to {hi_coef:.2f}{median_r['stars']}"
         elif median_r:
-            coef_str = f"β = {median_r['coef']:.4f}{median_r['stars']}"
+            coef_str = f"beta = {median_r['coef']:.4f}{median_r['stars']}"
             sig      = median_r["sig"]
         else:
             continue
 
-        st.markdown(f"**{finding['label']}**")
-        st.markdown(f"{coef_str} · {sig}")
-        st.markdown(finding["interpretation"])
-        st.markdown("---")
+        st.markdown(
+            finding_card(
+                finding.get("icon", FINDING_FALLBACK_ICON),
+                finding["label"],
+                coef_str,
+                sig,
+                finding["interpretation"],
+            ),
+            unsafe_allow_html=True,
+        )
 
-    # Pooled note always shown at the bottom
-    st.markdown("**Pooled Sample**")
-    st.caption(POOLED_NOTE)
+    st.markdown(pooled_note_card(POOLED_NOTE), unsafe_allow_html=True)
 
     if not any_loaded:
         st.info("Run the regression pipeline to populate findings.")
@@ -162,16 +168,19 @@ coverage   = [
     f"{len(outcomes)} outcome variable(s): {', '.join(outcomes)}",
 ]
 
-m1, m2, m3, m4 = st.columns(4)
-for col, header, items in [
-    (m1, "Methods",  estimators),
-    (m2, "Data",     DATA_SOURCES),
-    (m3, "Coverage", coverage),
-    (m4, "Tools",    TOOLS),
-]:
-    col.markdown(f"**{header}**")
-    for item in items:
-        col.markdown(f"· {item}")
+for _col, (_header, _items) in zip(
+    st.columns(4),
+    [
+        ("Methods",  estimators),
+        ("Data",     DATA_SOURCES),
+        ("Coverage", coverage),
+        ("Tools",    TOOLS),
+    ],
+):
+    _col.markdown(
+        meta_card(META_ICONS.get(_header, "geo-alt"), _header, _items),
+        unsafe_allow_html=True,
+    )
 
 st.divider()
 

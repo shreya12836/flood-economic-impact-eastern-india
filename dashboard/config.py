@@ -1,12 +1,41 @@
 from __future__ import annotations
 
+from utils.icons import (
+    BUILDING, CALENDAR, CHART_BAR, CODE, COG, CUBE,
+    DATABASE, GLOBE, MAP, PIN, SIGNAL, TREND_DOWN, WRENCH,
+)
+
 PROJECT_TITLE = "Flood Impact on Economic Activity — Eastern India"
-PROJECT_SUBTITLE = "Satellite Data · Panel Econometrics · Economic Impact Analysis"
 PROJECT_DESCRIPTION = (
     "Panel econometric analysis of how seasonal flood exposure affects economic activity "
     "and built-up development across Assembly Constituencies in Eastern India using "
     "satellite-derived indicators."
 )
+
+# ── Icon configuration ────────────────────────────────────────────────────────
+# All values are Bootstrap Icons class names (strings like "bar-chart-line").
+# Rendering is handled by theme._bi() — changing names here never touches HTML.
+
+HERO_TAGS: list[dict] = [
+    {"icon": SIGNAL,    "label": "Satellite Data"},
+    {"icon": CHART_BAR, "label": "Panel Econometrics"},
+]
+
+HERO_DYNAMIC_TAG_ICONS: dict[str, str] = {
+    "constituencies": BUILDING,
+    "year_range":     CALENDAR,
+}
+
+KPI_ICONS: list[str] = [BUILDING, MAP, CALENDAR, CUBE]
+
+META_ICONS: dict[str, str] = {
+    "Methods":  COG,
+    "Data":     DATABASE,
+    "Coverage": GLOBE,
+    "Tools":    CODE,
+}
+
+FINDING_FALLBACK_ICON: str = PIN
 
 # ── Key Findings ─────────────────────────────────────────────────────────────
 # Each dict defines one finding card on the Overview page.
@@ -36,6 +65,7 @@ FINDINGS_SPECS: list[dict] = [
 # Pooled regressions show no significant effect — the aggregate null masks heterogeneity.
 KEY_FINDINGS: list[dict] = [
     {
+        "icon": TREND_DOWN,
         "label": "West Bengal — Night-lights",
         "outcome": "NL",
         "estimator": "OLS",
@@ -48,6 +78,7 @@ KEY_FINDINGS: list[dict] = [
         ),
     },
     {
+        "icon": WRENCH,
         "label": "Bihar — Built-up Index (NDBI)",
         "outcome": "NDBI",
         "estimator": "OLS",
@@ -92,6 +123,24 @@ DATA_SOURCES: list[str] = [
     "JRC Global Surface Water (Seasonal Ratio)",
     "Election Commission of India (AC boundaries)",
 ]
+
+# ── GeoJSON layer registry ────────────────────────────────────────────────────
+# Extensible: add district / constituency layers here in future.
+GEO_LAYERS: dict[str, str] = {
+    "state": "data/eastern_india_states.geojson",
+    # "district":     "data/eastern_india_districts.geojson",  # future
+    # "constituency": "data/eastern_india_acs.geojson",        # future
+}
+STATE_GEO_NAME_FIELD: str = "name"  # GeoJSON feature property key for state name
+
+# Maps panel STATE column values → GeoJSON name property values (handles aliases)
+STATE_NAME_MAP: dict[str, str] = {
+    "Bihar":       "Bihar",
+    "Jharkhand":   "Jharkhand",
+    "Odisha":      "Odisha",
+    "West Bengal": "West Bengal",
+    "WB":          "West Bengal",
+}
 
 # ── Debug mode ────────────────────────────────────────────────────────────────
 # Set True to show a diagnostics expander on the Overview page.

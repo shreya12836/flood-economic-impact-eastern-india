@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pandas as pd
 import plotly.graph_objects as go
 
@@ -44,6 +46,74 @@ def trend_chart(
         legend_title="State",
         hovermode="x unified",
         margin=dict(t=20, b=40),
+    )
+    return fig
+
+
+def state_boundary_map(
+    geojson: dict,
+    state_colors: dict[str, str],
+    state_name_field: str,
+    state_name_map: dict[str, str],
+    ac_counts: dict[str, int],
+) -> go.Figure:
+    fig = go.Figure()
+    shown: set[str] = set()
+
+    for feature in geojson["features"]:
+        geo_name = feature["properties"][state_name_field]
+        panel_key = next(
+            (k for k, v in state_name_map.items() if v == geo_name), geo_name
+        )
+        color = state_colors.get(panel_key, "#888888")
+        n = ac_counts.get(panel_key, "—")
+
+        geom = feature["geometry"]
+        rings = (
+            [geom["coordinates"][0]]
+            if geom["type"] == "Polygon"
+            else [poly[0] for poly in geom["coordinates"]]
+        )
+
+        for ring in rings:
+            lons, lats = zip(*ring)
+            fig.add_trace(
+                go.Scattergeo(
+                    lon=list(lons),
+                    lat=list(lats),
+                    fill="toself",
+                    fillcolor=color,
+                    line=dict(color="rgba(255,255,255,0.25)", width=0.8),
+                    mode="lines",
+                    name=geo_name,
+                    showlegend=(geo_name not in shown),
+                    legendgroup=geo_name,
+                    hovertemplate=(
+                        f"<b>{geo_name}</b><br>"
+                        f"Constituencies: {n}<extra></extra>"
+                    ),
+                )
+            )
+            shown.add(geo_name)
+
+    fig.update_geos(
+        scope="asia",
+        showland=True,      landcolor="#1e2130",
+        showocean=True,     oceancolor="#0e1117",
+        showcountries=True, countrycolor="#555555",
+        showsubunits=True,  subunitcolor="#333333",
+        center=dict(lon=85, lat=23),
+        projection_scale=7,
+        bgcolor="#0e1117",
+    )
+    fig.update_layout(
+        height=320,
+        margin=dict(l=0, r=0, t=0, b=0),
+        paper_bgcolor="#0e1117",
+        geo_bgcolor="#0e1117",
+        legend=dict(font=dict(color="#ccc", size=11), bgcolor="rgba(0,0,0,0)"),
+        showlegend=True,
+        hovermode="closest",
     )
     return fig
 

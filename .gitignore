@@ -20,8 +20,6 @@ ENV/
 .ipynb_checkpoints/
 *.ipynb
 
-# Data — large generated files (regenerate with scripts)
-data/processed/final_regression_dataset.xlsx
 
 # LaTeX build artifacts
 *.aux

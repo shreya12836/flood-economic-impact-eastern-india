@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -49,6 +52,20 @@ def _read_sheet(path: Path, sheet: str, **kwargs) -> pd.DataFrame:
                 f"Sheet '{sheet}' not found in {path.name}. Re-run the regression pipeline."
             ) from exc
         raise
+
+
+@st.cache_data
+def load_state_geojson(layer: str = "state") -> dict:
+    from config import GEO_LAYERS
+    rel_path = GEO_LAYERS[layer]
+    geo_path = Path(__file__).resolve().parent.parent / rel_path
+    if not geo_path.exists():
+        raise FileNotFoundError(
+            f"GeoJSON not found at {geo_path}. "
+            "Run scripts/fetch_eastern_india_geo.py first."
+        )
+    with geo_path.open() as f:
+        return json.load(f)
 
 
 @st.cache_data
