@@ -15,6 +15,23 @@ The identification strategy uses two-way fixed effects (TWFE) — AC fixed effec
 
 ---
 
+## Quick Start
+
+```bash
+git clone https://github.com/shreya12836/flood-economic-impact-eastern-india.git
+cd flood-economic-impact-eastern-india
+pip install -r requirements.txt
+
+# Run primary regressions (OLS with two-way FE)
+python src/regression/run_nl_ols_pooled.py
+python src/regression/run_ndbi_ols_pooled.py
+
+# Launch dashboard
+streamlit run dashboard/app.py
+```
+
+---
+
 ## Data Sources
 
 | Source | Variable | Resolution |
@@ -47,6 +64,15 @@ Estimated via `pyfixest.feols`; SEs clustered by district.
 Estimated via `linearmodels.PanelOLS`; SEs clustered by district.
 
 NDBI is used in levels (not log) because it is bounded in [−1, 1] and frequently negative in rural constituencies.
+
+---
+
+## Main Findings
+
+- **West Bengal — Night-lights:** A one-unit increase in seasonal flood water fraction (Seasonal_Ratio) is associated with a **32–39% reduction in night-lights growth** (β = −0.32 to −0.39, p < 0.05). Estimated via OLS with two-way fixed effects on AC-level panel data, 2015–2019.
+- **Bihar — Infrastructure:** Flood exposure predicts **slower built-up index growth** in Bihar constituencies (β = −0.02 to −0.03 on ΔNDBI, p < 0.01), consistent with flood-damaged or deferred infrastructure investment.
+- **Pooled sample:** No statistically significant effect in pooled regressions across all four states. This null masks heterogeneous and opposite-sign state effects — it is not evidence of no impact.
+- **Robustness:** `linearmodels.PanelOLS` cross-check scripts produce coefficients within rounding of the primary pyfixest estimates, confirming package-level stability.
 
 ---
 
@@ -144,4 +170,4 @@ All outputs are written to `outputs/figures/` and `outputs/tables/`.
 
 ## Requirements
 
-Python 3.9+. See `requirements.txt` for package versions.
+Python 3.11.9. See `requirements.txt` for pinned package versions.
