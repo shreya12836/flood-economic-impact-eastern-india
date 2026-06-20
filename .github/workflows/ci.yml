@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  lint-and-check:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,6 +20,9 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Smoke test — NL OLS pooled regression
+        run: python src/regression/run_nl_ols_pooled.py
 
       - name: Syntax check — regression scripts
         run: |
