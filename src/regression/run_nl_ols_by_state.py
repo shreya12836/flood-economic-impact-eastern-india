@@ -13,6 +13,10 @@ import pandas as pd
 from pyfixest.estimation import feols
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+import sys
+sys.path.insert(0, str(REPO_ROOT))
+from src.utils import significance_label
+
 DATA = REPO_ROOT / "data" / "processed" / "final_regression_dataset.xlsx"
 OUT = REPO_ROOT / "outputs" / "tables" / "Regression_Results_NL_OLS_By_State.xlsx"
 
@@ -22,16 +26,6 @@ STATES = {
     "ORISSA": "Odisha",
     "WB": "WB",
 }
-
-
-def stars(p):
-    if p < 0.01:
-        return "p < 0.01"
-    if p < 0.05:
-        return "p < 0.05"
-    if p < 0.10:
-        return "p < 0.10"
-    return "n.s."
 
 
 def run_state(df_state, suffix):
@@ -61,7 +55,7 @@ def run_state(df_state, suffix):
             "Std_Error": r["Std. Error"],
             "t_stat": r["t value"],
             "p_value": r["Pr(>|t|)"],
-            "Significance": stars(r["Pr(>|t|)"]),
+            "Significance": significance_label(r["Pr(>|t|)"]),
         })
 
     stats = {

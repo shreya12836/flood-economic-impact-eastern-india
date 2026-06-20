@@ -1,33 +1,18 @@
 """Build publication-style regression table from Delta NDBI district-clustered results."""
 from pathlib import Path
+import sys
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
+from src.utils import fmt_coef, fmt_se
+
 POOLED = REPO_ROOT / "outputs" / "tables" / "Regression_Results_NDBI_Pooled_DistrictCluster.xlsx"
 BYSTATE = REPO_ROOT / "outputs" / "tables" / "Regression_Results_NDBI_By_State.xlsx"
 OUT = REPO_ROOT / "outputs" / "tables" / "Regression_Table_NDBI_Paper.xlsx"
-
-SIG_TO_STARS = {
-    "p < 0.01": "***",
-    "p < 0.05": "**",
-    "p < 0.10": "*",
-    "n.s.": "",
-}
-
-
-def stars(sig):
-    return SIG_TO_STARS.get(str(sig).strip(), "")
-
-
-def fmt_coef(coef, sig):
-    return f"{coef:.3f}{stars(sig)}"
-
-
-def fmt_se(se):
-    return f"({se:.3f})"
 
 
 def get_pooled(model):
@@ -144,77 +129,82 @@ def build_sheet(ws, model_name):
         ws.column_dimensions[get_column_letter(j)].width = 14
 
 
-wb = Workbook()
-wb.remove(wb.active)
-ws_med = wb.create_sheet("Median_Model")
-build_sheet(ws_med, "Median")
-ws_mean = wb.create_sheet("Mean_Model")
-build_sheet(ws_mean, "Mean")
+def main() -> None:
+    wb = Workbook()
+    wb.remove(wb.active)
+    ws_med = wb.create_sheet("Median_Model")
+    build_sheet(ws_med, "Median")
+    ws_mean = wb.create_sheet("Mean_Model")
+    build_sheet(ws_mean, "Mean")
 
-ws_n = wb.create_sheet("Notes")
-notes = [
-    "HOW TO READ THIS TABLE",
-    "----------------------",
-    "Each variable cell contains TWO numbers stacked vertically:",
-    "",
-    "    -0.049***       <-- top: estimated coefficient (β̂), with significance stars",
-    "    (0.014)         <-- bottom: cluster-robust standard error, in parentheses (italic)",
-    "",
-    "Significance stars (based on the p-value):",
-    "    ***   p < 0.01   (significant at 1% level — very strong evidence effect ≠ 0)",
-    "    **    p < 0.05   (significant at 5% level — strong evidence effect ≠ 0)",
-    "    *     p < 0.10   (significant at 10% level — weak/marginal evidence)",
-    "    (blank)          not statistically distinguishable from 0 at conventional levels",
-    "",
-    "Standard error (the number in parentheses):",
-    "    Measures how precisely the coefficient is estimated. Smaller SE = more precise.",
-    "    Here SEs are CLUSTERED BY DISTRICT, which accounts for correlated shocks (e.g. a flood",
-    "    hits all ACs in a district together) so we don't overstate statistical confidence.",
-    "    Rough rule of thumb: |coefficient / SE| > ~2 means significant at 5% (the ** mark).",
-    "",
-    "Worked example — All-states column, 'Proportion of area flooded' row (Median model):",
-    "    Coefficient = -0.049, SE = 0.014, stars = *** (p<0.01).",
-    "    Interpretation: holding NDVI, NL, AC and year fixed, a one-unit rise in the",
-    "    seasonal-flood share of an AC is associated with a 0.049 DECREASE in NDBI",
-    "    (year-on-year level change). NDBI is bounded in [-1,1], so 0.049 is a meaningful",
-    "    negative shift in the built-up index. Significant at the 1% level.",
-    "",
-    "Bottom block (AC FE, Year FE, Observations, R² within):",
-    "    These are model-level facts, not estimates with uncertainty, so they appear on a",
-    "    single row each — no SE/stars needed.",
-    "    AC FE = Yes  -> AC fixed effects included (controls for time-invariant AC features)",
-    "    Year FE = Yes-> year fixed effects included (controls for India-wide annual shocks)",
-    "    R² (within) -> share of within-AC variation explained by the regressors",
-    "                   (after FE absorb level differences).",
-    "",
-    "============================================================",
-    "",
-    "Source files:",
-    "  - Regression_Results_NDBI_Pooled_DistrictCluster.xlsx  (All states column)",
-    "  - Regression_Results_NDBI_By_State.xlsx                (Bihar / Jharkhand / Odisha / WB columns)",
-    "",
-    "Specification:",
-    "  NDBI_it - NDBI_{i,t-1} = β₀ + β₁·Seasonal_Ratio_it + β₂·NDVI_{i,t-1} + β₃·NL_{i,t-1} + α_i + γ_t + ε_it",
-    "  α_i = AC fixed effects, γ_t = year fixed effects.",
-    "  Estimator: PanelOLS (linearmodels) with explicit constant; SEs clustered at district.",
-    "",
-    "Why level-difference (not log-difference) for NDBI:",
-    "  NDBI is bounded in [-1, +1] and frequently negative for rural ACs. log(NDBI) is undefined",
-    "  for non-positive values, so Δlog NDBI would drop most of the rural panel and bias the sample",
-    "  toward urbanised ACs. Δ NDBI (level change) is the standard choice for bounded indices and",
-    "  preserves the full sample. The log-difference version is reported as a robustness check (if run).",
-    "",
-    "Variable mapping in this table:",
-    "  'Proportion of area flooded' = Seasonal_Ratio (contemporaneous, year t)",
-    "  NDVI_{t-1} = NDVI_median_t_minus_1 (Median model) / NDVI_mean_t_minus_1 (Mean model)",
-    "  NL_{t-1}   = NL_median_t_minus_1   (Median model) / NL_mean_t_minus_1   (Mean model)",
-    "",
-    "Pooled sample: 3,890 obs across 778 ACs, 5 years (2015-2019 for outcome 2016-2019), 108 district clusters.",
-    "By-state samples: Bihar 1,215 (37 districts); Jharkhand 475 (22); Odisha 735 (30); WB 1,465 (19).",
-]
-for i, line in enumerate(notes, start=1):
-    ws_n.cell(row=i, column=1, value=line)
-ws_n.column_dimensions["A"].width = 110
+    ws_n = wb.create_sheet("Notes")
+    notes = [
+        "HOW TO READ THIS TABLE",
+        "----------------------",
+        "Each variable cell contains TWO numbers stacked vertically:",
+        "",
+        "    -0.049***       <-- top: estimated coefficient (β̂), with significance stars",
+        "    (0.014)         <-- bottom: cluster-robust standard error, in parentheses (italic)",
+        "",
+        "Significance stars (based on the p-value):",
+        "    ***   p < 0.01   (significant at 1% level — very strong evidence effect ≠ 0)",
+        "    **    p < 0.05   (significant at 5% level — strong evidence effect ≠ 0)",
+        "    *     p < 0.10   (significant at 10% level — weak/marginal evidence)",
+        "    (blank)          not statistically distinguishable from 0 at conventional levels",
+        "",
+        "Standard error (the number in parentheses):",
+        "    Measures how precisely the coefficient is estimated. Smaller SE = more precise.",
+        "    Here SEs are CLUSTERED BY DISTRICT, which accounts for correlated shocks (e.g. a flood",
+        "    hits all ACs in a district together) so we don't overstate statistical confidence.",
+        "    Rough rule of thumb: |coefficient / SE| > ~2 means significant at 5% (the ** mark).",
+        "",
+        "Worked example — All-states column, 'Proportion of area flooded' row (Median model):",
+        "    Coefficient = -0.049, SE = 0.014, stars = *** (p<0.01).",
+        "    Interpretation: holding NDVI, NL, AC and year fixed, a one-unit rise in the",
+        "    seasonal-flood share of an AC is associated with a 0.049 DECREASE in NDBI",
+        "    (year-on-year level change). NDBI is bounded in [-1,1], so 0.049 is a meaningful",
+        "    negative shift in the built-up index. Significant at the 1% level.",
+        "",
+        "Bottom block (AC FE, Year FE, Observations, R² within):",
+        "    These are model-level facts, not estimates with uncertainty, so they appear on a",
+        "    single row each — no SE/stars needed.",
+        "    AC FE = Yes  -> AC fixed effects included (controls for time-invariant AC features)",
+        "    Year FE = Yes-> year fixed effects included (controls for India-wide annual shocks)",
+        "    R² (within) -> share of within-AC variation explained by the regressors",
+        "                   (after FE absorb level differences).",
+        "",
+        "============================================================",
+        "",
+        "Source files:",
+        "  - Regression_Results_NDBI_Pooled_DistrictCluster.xlsx  (All states column)",
+        "  - Regression_Results_NDBI_By_State.xlsx                (Bihar / Jharkhand / Odisha / WB columns)",
+        "",
+        "Specification:",
+        "  NDBI_it - NDBI_{i,t-1} = β₀ + β₁·Seasonal_Ratio_it + β₂·NDVI_{i,t-1} + β₃·NL_{i,t-1} + α_i + γ_t + ε_it",
+        "  α_i = AC fixed effects, γ_t = year fixed effects.",
+        "  Estimator: pyfixest.feols (OLS with two-way FE); SEs clustered at district.",
+        "",
+        "Why level-difference (not log-difference) for NDBI:",
+        "  NDBI is bounded in [-1, +1] and frequently negative for rural ACs. log(NDBI) is undefined",
+        "  for non-positive values, so Δlog NDBI would drop most of the rural panel and bias the sample",
+        "  toward urbanised ACs. Δ NDBI (level change) is the standard choice for bounded indices and",
+        "  preserves the full sample. The log-difference version is reported as a robustness check (if run).",
+        "",
+        "Variable mapping in this table:",
+        "  'Proportion of area flooded' = Seasonal_Ratio (contemporaneous, year t)",
+        "  NDVI_{t-1} = NDVI_median_t_minus_1 (Median model) / NDVI_mean_t_minus_1 (Mean model)",
+        "  NL_{t-1}   = NL_median_t_minus_1   (Median model) / NL_mean_t_minus_1   (Mean model)",
+        "",
+        "Pooled sample: 3,890 obs across 778 ACs, 5 years (2015-2019 for outcome 2016-2019), 108 district clusters.",
+        "By-state samples: Bihar 1,215 (37 districts); Jharkhand 475 (22); Odisha 735 (30); WB 1,465 (19).",
+    ]
+    for i, line in enumerate(notes, start=1):
+        ws_n.cell(row=i, column=1, value=line)
+    ws_n.column_dimensions["A"].width = 110
 
-wb.save(OUT)
-print(f"Saved: {OUT}")
+    wb.save(OUT)
+    print(f"Saved: {OUT}")
+
+
+if __name__ == "__main__":
+    main()

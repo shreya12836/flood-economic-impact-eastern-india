@@ -20,18 +20,12 @@ import pandas as pd
 from linearmodels.panel import PanelOLS
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+import sys
+sys.path.insert(0, str(REPO_ROOT))
+from src.utils import significance_label
+
 DATA = REPO_ROOT / "data" / "processed" / "final_regression_dataset.xlsx"
 OUT = REPO_ROOT / "outputs" / "tables" / "Regression_Results_NDBI_Pooled_DistrictCluster.xlsx"
-
-
-def stars(p):
-    if p < 0.01:
-        return "p < 0.01"
-    if p < 0.05:
-        return "p < 0.05"
-    if p < 0.10:
-        return "p < 0.10"
-    return "n.s."
 
 
 def run_one(df, suffix):
@@ -77,7 +71,7 @@ def run_one(df, suffix):
             "p_value": p,
             "CI_low_95": ci["lower"],
             "CI_high_95": ci["upper"],
-            "Significance": stars(p),
+            "Significance": significance_label(p),
         })
 
     n_districts = clusters.nunique()

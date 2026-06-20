@@ -17,18 +17,12 @@ import pandas as pd
 from linearmodels.panel import PanelOLS
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+import sys
+sys.path.insert(0, str(REPO_ROOT))
+from src.utils import significance_label
+
 DATA = REPO_ROOT / "data" / "processed" / "final_regression_dataset.xlsx"
 OUT = REPO_ROOT / "outputs" / "tables" / "Regression_Results_Pooled_DistrictCluster.xlsx"
-
-
-def stars(p: float) -> str:
-    if p < 0.01:
-        return "p < 0.01"
-    if p < 0.05:
-        return "p < 0.05"
-    if p < 0.10:
-        return "p < 0.10"
-    return "n.s."
 
 
 def run_one(df: pd.DataFrame, suffix: str) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -78,7 +72,7 @@ def run_one(df: pd.DataFrame, suffix: str) -> tuple[pd.DataFrame, pd.DataFrame]:
                 "p_value": res.pvalues[v],
                 "CI_low_95": ci["lower"],
                 "CI_high_95": ci["upper"],
-                "Significance": stars(res.pvalues[v]),
+                "Significance": significance_label(res.pvalues[v]),
             }
         )
 

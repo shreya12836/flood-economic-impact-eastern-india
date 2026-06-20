@@ -1,28 +1,18 @@
 """Publication-style regression table from NL OLS results (district-clustered)."""
 from pathlib import Path
+import sys
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
+from src.utils import fmt_coef, fmt_se
+
 POOLED = REPO_ROOT / "outputs" / "tables" / "Regression_Results_NL_OLS_Pooled.xlsx"
 BYSTATE = REPO_ROOT / "outputs" / "tables" / "Regression_Results_NL_OLS_By_State.xlsx"
 OUT = REPO_ROOT / "outputs" / "tables" / "Regression_Table_NL_OLS_Paper.xlsx"
-
-SIG_TO_STARS = {"p < 0.01": "***", "p < 0.05": "**", "p < 0.10": "*", "n.s.": ""}
-
-
-def stars(sig):
-    return SIG_TO_STARS.get(str(sig).strip(), "")
-
-
-def fmt_coef(coef, sig):
-    return f"{coef:.3f}{stars(sig)}"
-
-
-def fmt_se(se):
-    return f"({se:.3f})"
 
 
 def get_pooled(model):
@@ -135,47 +125,52 @@ def build_sheet(ws, model_name):
         ws.column_dimensions[get_column_letter(j)].width = 14
 
 
-wb = Workbook()
-wb.remove(wb.active)
-ws_med = wb.create_sheet("Median_Model")
-build_sheet(ws_med, "Median")
-ws_mean = wb.create_sheet("Mean_Model")
-build_sheet(ws_mean, "Mean")
+def main() -> None:
+    wb = Workbook()
+    wb.remove(wb.active)
+    ws_med = wb.create_sheet("Median_Model")
+    build_sheet(ws_med, "Median")
+    ws_mean = wb.create_sheet("Mean_Model")
+    build_sheet(ws_mean, "Mean")
 
-ws_n = wb.create_sheet("Notes")
-notes = [
-    "HOW TO READ THIS TABLE",
-    "----------------------",
-    "Each variable cell contains TWO numbers stacked vertically:",
-    "    top: estimated coefficient (β̂), with significance stars",
-    "    bottom: cluster-robust standard error in parentheses (italic)",
-    "",
-    "Significance stars:",
-    "    *** p < 0.01    ** p < 0.05    * p < 0.10    (blank) n.s.",
-    "",
-    "Estimator: TWFE via pyfixest. AC FE = Yes, Year FE = Yes.",
-    "SEs clustered by district (correlated shocks within districts).",
-    "",
-    "============================================================",
-    "",
-    "Source files:",
-    "  - Regression_Results_NL_OLS_Pooled.xlsx       (All states column)",
-    "  - Regression_Results_NL_OLS_By_State.xlsx     (Bihar / Jharkhand / Odisha / WB columns)",
-    "",
-    "Specification:",
-    "  Δlog NL_it = β₁·Seasonal_Ratio_it + β₂·NDVI_{i,t-1} + β₃·NDBI_{i,t-1} + α_i + γ_t + ε_it",
-    "  α_i = AC fixed effects, γ_t = year fixed effects.",
-    "  Estimator: pyfixest.feols (formula API; FE absorbed, no intercept reported).",
-    "  R² shown is within-R² (after FE absorption).",
-    "",
-    "Variable mapping:",
-    "  'Proportion of area flooded' = Seasonal_Ratio (contemporaneous, year t)",
-    "  NDVI_{t-1} = NDVI_median_t_minus_1 (Median model) / NDVI_mean_t_minus_1 (Mean model)",
-    "  NDBI_{t-1} = NDBI_median_t_minus_1 (Median model) / NDBI_mean_t_minus_1 (Mean model)",
-]
-for i, line in enumerate(notes, start=1):
-    ws_n.cell(row=i, column=1, value=line)
-ws_n.column_dimensions["A"].width = 110
+    ws_n = wb.create_sheet("Notes")
+    notes = [
+        "HOW TO READ THIS TABLE",
+        "----------------------",
+        "Each variable cell contains TWO numbers stacked vertically:",
+        "    top: estimated coefficient (β̂), with significance stars",
+        "    bottom: cluster-robust standard error in parentheses (italic)",
+        "",
+        "Significance stars:",
+        "    *** p < 0.01    ** p < 0.05    * p < 0.10    (blank) n.s.",
+        "",
+        "Estimator: TWFE via pyfixest. AC FE = Yes, Year FE = Yes.",
+        "SEs clustered by district (correlated shocks within districts).",
+        "",
+        "============================================================",
+        "",
+        "Source files:",
+        "  - Regression_Results_NL_OLS_Pooled.xlsx       (All states column)",
+        "  - Regression_Results_NL_OLS_By_State.xlsx     (Bihar / Jharkhand / Odisha / WB columns)",
+        "",
+        "Specification:",
+        "  Δlog NL_it = β₁·Seasonal_Ratio_it + β₂·NDVI_{i,t-1} + β₃·NDBI_{i,t-1} + α_i + γ_t + ε_it",
+        "  α_i = AC fixed effects, γ_t = year fixed effects.",
+        "  Estimator: pyfixest.feols (formula API; FE absorbed, no intercept reported).",
+        "  R² shown is within-R² (after FE absorption).",
+        "",
+        "Variable mapping:",
+        "  'Proportion of area flooded' = Seasonal_Ratio (contemporaneous, year t)",
+        "  NDVI_{t-1} = NDVI_median_t_minus_1 (Median model) / NDVI_mean_t_minus_1 (Mean model)",
+        "  NDBI_{t-1} = NDBI_median_t_minus_1 (Median model) / NDBI_mean_t_minus_1 (Mean model)",
+    ]
+    for i, line in enumerate(notes, start=1):
+        ws_n.cell(row=i, column=1, value=line)
+    ws_n.column_dimensions["A"].width = 110
 
-wb.save(OUT)
-print(f"Saved: {OUT}")
+    wb.save(OUT)
+    print(f"Saved: {OUT}")
+
+
+if __name__ == "__main__":
+    main()

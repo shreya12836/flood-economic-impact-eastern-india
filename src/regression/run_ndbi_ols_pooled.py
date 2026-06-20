@@ -21,18 +21,12 @@ import pandas as pd
 from pyfixest.estimation import feols
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+import sys
+sys.path.insert(0, str(REPO_ROOT))
+from src.utils import significance_label
+
 DATA = REPO_ROOT / "data" / "processed" / "final_regression_dataset.xlsx"
 OUT = REPO_ROOT / "outputs" / "tables" / "Regression_Results_NDBI_OLS_Pooled.xlsx"
-
-
-def stars(p):
-    if p < 0.01:
-        return "p < 0.01"
-    if p < 0.05:
-        return "p < 0.05"
-    if p < 0.10:
-        return "p < 0.10"
-    return "n.s."
 
 
 def run_one(df, suffix):
@@ -64,7 +58,7 @@ def run_one(df, suffix):
             "p_value": r["Pr(>|t|)"],
             "CI_low_95": r["2.5%"],
             "CI_high_95": r["97.5%"],
-            "Significance": stars(r["Pr(>|t|)"]),
+            "Significance": significance_label(r["Pr(>|t|)"]),
         })
 
     n_clusters = panel["DISTRICT_ID"].nunique()
