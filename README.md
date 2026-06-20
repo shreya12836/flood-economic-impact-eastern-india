@@ -71,10 +71,10 @@ NDBI is used in levels (not log) because it is bounded in [−1, 1] and frequent
 
 ## Main Findings
 
-- **West Bengal — Night-lights:** A one-unit increase in seasonal flood water fraction (Seasonal_Ratio) is associated with a **32–39% reduction in night-lights growth** (β = −0.32 to −0.39, p < 0.05). Estimated via OLS with two-way fixed effects on AC-level panel data, 2015–2019.
-- **Bihar — Infrastructure:** Flood exposure predicts **slower built-up index growth** in Bihar constituencies (β = −0.02 to −0.03 on ΔNDBI, p < 0.01), consistent with flood-damaged or deferred infrastructure investment.
-- **Pooled sample:** No statistically significant effect in pooled regressions across all four states. This null masks heterogeneous and opposite-sign state effects — it is not evidence of no impact.
-- **Robustness:** `linearmodels.PanelOLS` cross-check scripts produce coefficients within rounding of the primary pyfixest estimates, confirming package-level stability.
+- **West Bengal — Night-lights:** A one-unit increase in `Seasonal_Ratio` is associated with 32–39% lower NL growth (β = −0.32 to −0.39, p < 0.05).
+- **Bihar — Infrastructure:** Higher flood exposure predicts a significant decline in built-up index growth (β = −0.02 to −0.03 on ΔNDBI, p < 0.01).
+- **Pooled sample:** No significant effect across all four states — state-level effects are heterogeneous and partially cancel out.
+- **Robustness:** `linearmodels.PanelOLS` cross-checks return identical coefficients to the primary pyfixest estimates.
 
 ---
 
@@ -91,7 +91,7 @@ Flood exposure predicts a significant decline in built-up index growth in Bihar.
 ![NDBI TWFE coefficients by state](outputs/figures/coef_NDBI_TWFE.png)
 
 **Pooled sample**
-No statistically significant effect is detected in pooled regressions. The aggregate null masks heterogeneous state-level effects, consistent with variation in flood frequency, infrastructure quality, and institutional capacity across states.
+No statistically significant effect is detected in pooled regressions. The pooled null reflects heterogeneous and partially cancelling state effects — not an absence of impact.
 
 ![State-level coefficient comparison (OLS)](outputs/figures/forest_plot_flood_OLS.png)
 
