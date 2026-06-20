@@ -93,7 +93,6 @@ flood-economic-impact-eastern-india/
 ├── outputs/
 │   ├── figures/            # PNG coefficient and trend plots
 │   └── tables/             # Regression result Excel files
-├── reports/                # Dissertation PDF, LaTeX source, final report
 ├── docs/
 │   ├── methodology.md      # Estimation details and data cleaning decisions
 │   ├── data_dictionary.md  # Variable definitions

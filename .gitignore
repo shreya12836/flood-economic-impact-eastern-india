@@ -58,3 +58,6 @@ desktop.ini
 BACKUP_*.docx
 *_BACKUP*.docx
 *.tmp
+
+# Unpublished reports — dissertation, draft, presentation; keep local only
+reports/
