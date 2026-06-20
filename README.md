@@ -47,13 +47,15 @@ Raster data were aggregated to AC boundaries using QGIS zonal statistics. Proces
 
 ## Regression Specifications
 
+**Primary estimator:** OLS with two-way fixed effects via `pyfixest.feols`. Ordinary least squares is used throughout; AC and year fixed effects are absorbed into the estimator (`| AC_UID + YEAR`) rather than partialled out manually. `linearmodels.PanelOLS` cross-check scripts confirm coefficient stability across packages.
+
 **Equation 1 — Night-lights (economic activity)**
 
 ```
 Δlog(NL_it) = β₁ · Seasonal_Ratio_it + β₂ · NDVI_{i,t−1} + β₃ · NDBI_{i,t−1} + αᵢ + γₜ + εᵢₜ
 ```
 
-Estimated via `pyfixest.feols`; SEs clustered by district.
+Estimated via OLS with two-way fixed effects (`pyfixest.feols`, `| AC_UID + YEAR`); SEs clustered by district.
 
 **Equation 2 — NDBI (built-up infrastructure)**
 
@@ -61,7 +63,7 @@ Estimated via `pyfixest.feols`; SEs clustered by district.
 ΔNDBI_it = β₀ + β₁ · Seasonal_Ratio_it + β₂ · NDVI_{i,t−1} + β₃ · NL_{i,t−1} + αᵢ + γₜ + εᵢₜ
 ```
 
-Estimated via `linearmodels.PanelOLS`; SEs clustered by district.
+Estimated via OLS with two-way fixed effects (`pyfixest.feols`, `| AC_UID + YEAR`); SEs clustered by district. A `linearmodels.PanelOLS` cross-check is available in `run_ndbi_pooled.py`.
 
 NDBI is used in levels (not log) because it is bounded in [−1, 1] and frequently negative in rural constituencies.
 
@@ -113,7 +115,7 @@ flood-economic-impact-eastern-india/
 │   ├── processed/          # State-year AC-level CSVs + merged panel
 │   └── README.md           # Column definitions and data provenance
 ├── src/
-│   ├── regression/         # TWFE and OLS estimation scripts
+│   ├── regression/         # Primary OLS (pyfixest) + linearmodels cross-check scripts
 │   └── visualization/      # Coefficient plots and trend figures
 ├── scripts/                # Paper-ready table builders
 ├── outputs/
@@ -148,11 +150,15 @@ flood-economic-impact-eastern-india/
 # 1. Install dependencies
 pip install -r requirements.txt
 
-# 2. Run regressions — night-lights outcome
+# 2. Primary regressions — OLS with two-way FE (shown in dashboard)
 python src/regression/run_nl_ols_pooled.py
 python src/regression/run_nl_ols_by_state.py
+python src/regression/run_ndbi_ols_pooled.py
+python src/regression/run_ndbi_ols_by_state.py
 
-# 3. Run regressions — NDBI outcome
+# 3. Robustness cross-checks — linearmodels PanelOLS
+python src/regression/run_nl_twfe_pooled.py
+python src/regression/run_nl_twfe_by_state.py
 python src/regression/run_ndbi_pooled.py
 python src/regression/run_ndbi_by_state.py
 

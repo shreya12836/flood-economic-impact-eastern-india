@@ -44,7 +44,7 @@
 ```
 
 - Outcome: first-differenced log nighttime lights (`log NL_t − log NL_{t−1}`)
-- Estimator: `pyfixest.feols` with `| AC_UID + YEAR` absorbing both fixed effects
+- Estimator: `pyfixest.feols` with `| AC_UID + YEAR` absorbing both fixed effects — **this is the primary specification**; the linearmodels cross-check (`run_nl_twfe_pooled.py`) replicates the same equation and confirms coefficients are stable across packages
 - Standard errors: clustered by `DISTRICT_ID` (district-level clustering)
 
 Two variants estimated: **Median** (uses `NL_median`, `NDVI_median_t_minus_1`, `NDBI_median_t_minus_1`) and **Mean** (uses `_mean_` analogues).
@@ -59,7 +59,7 @@ Two variants estimated: **Median** (uses `NL_median`, `NDVI_median_t_minus_1`, `
 ```
 
 - Outcome: first-differenced NDBI in levels (`NDBI_t − NDBI_{t−1}`)
-- Estimator: `linearmodels.PanelOLS` with `entity_effects=True, time_effects=True, drop_absorbed=True`
+- Estimator: `pyfixest.feols` with `| AC_UID + YEAR` — **primary specification** (scripts: `run_ndbi_ols_pooled.py`, `run_ndbi_ols_by_state.py`); `linearmodels.PanelOLS` cross-check in `run_ndbi_pooled.py`
 - Standard errors: clustered by `DISTRICT_ID`
 
 NDBI is used in level differences (not log) because it is bounded in [−1, 1] and frequently negative in rural ACs. Log-transforming NDBI would drop most of the rural sample and introduce severe outliers near zero.
@@ -67,6 +67,8 @@ NDBI is used in level differences (not log) because it is bounded in [−1, 1] a
 ---
 
 ## Why TWFE
+
+All regressions use ordinary least squares (OLS) as the estimation method; "TWFE" refers to the fixed-effects structure absorbed by the estimator, not a different estimation technique.
 
 Two-way fixed effects removes two sources of confounding:
 
@@ -78,11 +80,11 @@ The identifying assumption is conditional parallel trends: after removing αᵢ 
 
 ---
 
-## OLS robustness
+## Linearmodels cross-check (robustness)
 
-Pooled OLS (no fixed effects, district-clustered SEs) is run as a robustness check. Scripts: `run_nl_ols_pooled.py`, `run_nl_ols_by_state.py`, `run_ndbi_ols_pooled.py`, `run_ndbi_ols_by_state.py`.
+The `linearmodels.PanelOLS` scripts (`run_nl_twfe_pooled.py`, `run_nl_twfe_by_state.py`, `run_ndbi_pooled.py`, `run_ndbi_by_state.py`) replicate the same two-way FE specification using a different package. They are secondary cross-checks, not a different model: both pyfixest and linearmodels implement within-estimator OLS with entity and time effects. Coefficients across packages are expected to be identical up to floating-point rounding; any divergence would indicate a data-alignment or index issue.
 
-The OLS flood coefficient on Δlog NL is null pooled and positive (wrong sign) for Bihar in the by-state specification. This sign reversal is expected: flood-prone ACs in Bihar tend to have faster NL growth for reasons unrelated to flooding (lower initial base, infrastructure catch-up). The TWFE specification removes this cross-sectional confound; OLS does not. The contrast between TWFE and OLS strengthens the case for the fixed-effects design.
+As a point of comparison: naive pooled OLS (no fixed effects) produces a null or sign-reversed flood coefficient for Bihar — the same pattern seen in cross-sectional data where flood-prone but fast-growing low-base constituencies dominate. The two-way FE design removes this cross-sectional confound by exploiting within-AC, within-year variation only.
 
 ---
 
