@@ -8,7 +8,7 @@ Planned extensions and known limitations of the current analysis.
 
 The original specification includes road infrastructure density as a control variable. It is not present in the current dataset.
 
-**Plan:** merge district-level road density from the GeoSadak dataset (PMGSY village road network) or NHAI highway shapefiles onto `AC_UID`. Expected completion: end of June 2025.
+**Plan:** merge district-level road density from the GeoSadak dataset (PMGSY village road network) or NHAI highway shapefiles onto `AC_UID`. Expected completion: end of June 2026 (GeoSadak data pending).
 
 ---
 

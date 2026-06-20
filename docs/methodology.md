@@ -28,7 +28,7 @@
 
 **Area approximation:** Bihar, Odisha, and West Bengal source files do not include `Area_AC`. It is approximated from `Shape_Area` (degrees²) using a latitude cosine correction at state-mean latitude. Validation on Jharkhand (where true area is available) gives median error 0.76%. This approximated area is stored separately in `data/processed/Area_AC_calculated.csv` and is not used in the regression specifications.
 
-**WB 2015 filename:** The file `WestBengalFloods_2015_processed.csv` has a trailing space in the filename (`WestBengalFloods_2015 _processed.csv`). This is a source artefact; load it with the exact filename including the space, or rename before processing.
+**WB 2015 filename:** The source file originally had a trailing space in the filename (`WestBengalFloods_2015 _processed.csv`). It has been renamed to `WestBengalFloods_2015_processed.csv` (no space) in the repository.
 
 ---
 

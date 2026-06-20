@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this code or data, please cite it using this reference."
+type: software
+title: "Flood Exposure and Economic Activity in Eastern India"
+abstract: >
+  Panel regression analysis of how seasonal flood exposure affects night-lights
+  (economic activity) and built-up index (infrastructure) across 765 Assembly
+  Constituencies in Bihar, Jharkhand, Odisha, and West Bengal, 2014–2019.
+authors:
+  - family-names: Mishra
+    given-names: Shreya
+    affiliation: "BIT Mesra"
+repository-code: "https://github.com/shreya12836/flood-economic-impact-eastern-india"
+license: "CC-BY-4.0"
+date-released: "2026-06-20"
+keywords:
+  - flood
+  - econometrics
+  - panel-data
+  - night-lights
+  - eastern-india
+  - satellite-data
