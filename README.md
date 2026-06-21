@@ -46,6 +46,8 @@ streamlit run dashboard/app.py
 
 Raster data were aggregated to AC boundaries using QGIS zonal statistics. Processed CSV files are one row per AC per year.
 
+Full variable definitions and index formulas: [docs/data_dictionary.md](docs/data_dictionary.md)
+
 ---
 
 ## Regression Specifications
