@@ -71,7 +71,7 @@ NDBI is used in levels (not log) because it is bounded in [−1, 1] and frequent
 
 ---
 
-## Main Findings
+## Key Insights
 
 - **West Bengal — Night-lights:** A one-unit increase in `Seasonal_Ratio` is associated with 32–39% lower NL growth (β = −0.32 to −0.39, p < 0.05).
 - **Bihar — Infrastructure:** Higher flood exposure predicts a significant decline in built-up index growth (β = −0.02 to −0.03 on ΔNDBI, p < 0.01).
@@ -80,7 +80,7 @@ NDBI is used in levels (not log) because it is bounded in [−1, 1] and frequent
 
 ---
 
-## Key Findings
+## Supporting Evidence
 
 **West Bengal — Night-lights**
 Higher flood exposure (Seasonal_Ratio) is associated with a statistically significant reduction in night-lights growth. The coefficient on Seasonal_Ratio ranges from −0.32 to −0.39 (p < 0.05) depending on the NL measure (mean vs. median). This implies that a one-unit increase in the seasonal flood water fraction is associated with a 32–39 percent reduction in economic activity growth.
