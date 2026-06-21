@@ -1,5 +1,7 @@
 # Flood Exposure and Economic Activity in Eastern India
 
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://flood-insights-india.streamlit.app)
+
 Panel regression analysis of how seasonal flood exposure affects economic activity and built-up infrastructure across Assembly Constituencies (ACs) in Bihar, Jharkhand, Odisha, and West Bengal, 2014–2019.
 
 ---
