@@ -41,6 +41,7 @@ streamlit run dashboard/app.py
 | JRC Global Surface Water (GSW) | Seasonal_Ratio, Permanent_Ratio | 30 m |
 | VIIRS/DMSP Nighttime Lights | NL_mean, NL_median | ~500 m |
 | Landsat-8 SR (OLI bands 4, 5, 6) | NDVI, NDBI | 30 m |
+| MODIS MCD12Q1 Land Cover (IGBP Type 1) | LC_X_ratio (land cover shares) | 500 m |
 | Election Commission of India | AC boundaries (2008 delimitation) | Vector |
 
 Raster data were aggregated to AC boundaries using QGIS zonal statistics. Processed CSV files are one row per AC per year.

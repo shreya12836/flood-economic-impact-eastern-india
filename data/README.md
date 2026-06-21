@@ -89,12 +89,13 @@ Validation on the 470 Jharkhand rows where the true value is known: median error
 
 `LC_X_ratio` columns give the fraction of AC area in each MODIS/GlobeLand30 land cover class. Key classes used in analysis:
 
-| Column | Land cover class |
-|---|---|
-| `LC_11_ratio` | Wetlands |
-| `LC_12_ratio` | Cropland |
-| `LC_13_ratio` | Urban / built-up |
-| `LC_17_ratio` | Water bodies |
+| Column | MODIS IGBP class | Land cover class |
+|---|---|---|
+| `LC_12_ratio` | 12 | Croplands |
+| `LC_13_ratio` | 13 | Urban and Built-Up Lands |
+| `LC_14_ratio` | 14 | Cropland/Natural Vegetation Mosaics |
+| `LC_11_ratio` | 11 | Permanent Wetlands |
+| `LC_17_ratio` | 17 | Water Bodies (permanent) |
 
 ---
 
@@ -105,4 +106,5 @@ Validation on the 470 Jharkhand rows where the true value is known: median error
 | JRC Global Surface Water | European Commission JRC | [global-surface-water.appspot.com](https://global-surface-water.appspot.com) |
 | VIIRS Nighttime Lights | NOAA / NASA | [eogdata.mines.edu](https://eogdata.mines.edu/products/vnl/) |
 | Landsat-8 SR | USGS / Google Earth Engine | [earthengine.google.com](https://earthengine.google.com) |
+| MODIS MCD12Q1 Land Cover (IGBP Type 1) | NASA LP DAAC / Google Earth Engine | [lpdaac.usgs.gov](https://lpdaac.usgs.gov/products/mcd12q1v006/) |
 | AC Boundaries | Election Commission of India | Delimitation Order 2008 |

@@ -87,16 +87,20 @@ Range: [−1, 1]. Higher values indicate greater proportion of built-up/impervio
 
 Derived from GlobeLand30 / MODIS land cover classification. Each column gives the fraction of AC pixels in that class.
 
-| Column | Land cover class |
-|---|---|
-| `LC_11_ratio` | Wetlands |
-| `LC_12_ratio` | Cropland / agriculture |
-| `LC_13_ratio` | Urban and built-up |
-| `LC_14_ratio` | Bare land |
-| `LC_15_ratio` | Snow / ice |
-| `LC_16_ratio` | Shrubland |
-| `LC_17_ratio` | Water bodies (permanent) |
-| `LC_18_ratio` | Other |
+| Column | MODIS IGBP class | Land cover class |
+|---|---|---|
+| `LC_2_ratio` | 2 | Evergreen Broadleaf Forest |
+| `LC_4_ratio` | 4 | Deciduous Broadleaf Forest |
+| `LC_5_ratio` | 5 | Mixed Forest |
+| `LC_8_ratio` | 8 | Woody Savannas |
+| `LC_9_ratio` | 9 | Savannas |
+| `LC_10_ratio` | 10 | Grasslands |
+| `LC_11_ratio` | 11 | Permanent Wetlands |
+| `LC_12_ratio` | 12 | Croplands |
+| `LC_13_ratio` | 13 | Urban and Built-Up Lands |
+| `LC_14_ratio` | 14 | Cropland/Natural Vegetation Mosaics |
+| `LC_16_ratio` | 16 | Barren or Sparsely Vegetated |
+| `LC_17_ratio` | 17 | Water Bodies (permanent) |
 
 `LC_SUM` = total classified pixels; `LC_X_ratio = LC_X / LC_SUM`.
 
