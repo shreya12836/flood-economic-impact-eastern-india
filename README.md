@@ -149,6 +149,16 @@ flood-economic-impact-eastern-india/
 
 ---
 
+## Status & Planned Extensions
+
+**Publication status:** This repository contains the analysis for an ongoing thesis manuscript. Results and interpretations are preliminary and subject to change pending peer review.
+
+**Repository:** [shreya12836/flood-economic-impact-eastern-india](https://github.com/shreya12836/flood-economic-impact-eastern-india)
+
+**Planned extension:** Constituency-level road density data from [GeoSadak](https://geosadak.com) will be incorporated as an infrastructure-accessibility control to address the omitted variable bias flagged in Limitations. See [`docs/roadmap.md`](docs/roadmap.md) for details.
+
+---
+
 ## How to Run
 
 ```bash
